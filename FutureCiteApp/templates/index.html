@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abstract Analysis Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { 
+            padding-top: 20px; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .hidden { display: none; }
+        #expanding-textarea {
+            width: 100%;
+            resize: none;
+            overflow: auto;
+            height: 150px;
+            border: 1px solid #ced4da;
+            border-radius: 15px;
+            padding: 10px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .metric-circle {
+            font-size: 1.2em;
+            letter-spacing: 2px;
+        }
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .results-container {
+            display: flex;
+            gap: 20px;
+        }
+        .summary-card {
+            flex: 3;
+        }
+        .metrics-card {
+            flex: 2;
+        }
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+        .dark-mode .card {
+            background-color: #444;
+            color: #fff;
+        }
+        .dark-mode .card-header {
+            background-color: #555;
+            border-bottom: 1px solid #666;
+        }
+        .dark-mode #expanding-textarea {
+            background-color: #444;
+            color: #fff;
+            border-color: #666;
+        }
+        .dark-mode .table {
+            color: #fff;
+        }
+
+        .dark-mode .modal-content {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .dark-mode .modal-header {
+            border-bottom-color: #555;
+        }
+
+        .dark-mode .modal-footer {
+            border-top-color: #555;
+        }
+
+        .dark-mode .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .info-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 20px;
+            margin: 2px;
+            }
+
+</style>
+</head>
+<body>
+    <div class="container">
+        <button id="theme-toggle" class="btn btn-outline-primary theme-toggle">
+            🌙 Dark Mode
+        </button>
+        <button id="info-button" class="btn btn-outline-secondary info-button" data-bs-toggle="modal" data-bs-target="#infoModal">
+            Click here for info
+        </button>
+
+        <h1 class="text-center text-primary mb-4">FutureCite </h1>
+        
+        <div class="main-content">
+            <h2 class="text-left font-italic"></h2>
+            <h2 class="text-left font-italic">Analyze a research abstract:</h2>
+            <textarea id="expanding-textarea" placeholder="Enter research abstract here..."></textarea>
+            <button id="process-abstract" class="btn btn-primary mt-2 me-2">
+                <span class="spinner d-none"></span>Process abstract</button>
+            <button id="random-abstract" class="btn btn-secondary mt-2">Random abstract</button>
+            
+            <div id="output-container" class="mt-4 hidden">
+                <div class="results-container">
+                    <div class="card summary-card">
+                        <div class="card-header">Abstract Summary</div>
+                        <div class="card-body">
+                            <p id="purpose-of-research"></p>
+                            <p><b>Summary:</b></p>
+                            <ul id="summary-list"></ul>
+                            <p><b>Research categories:</b></p>
+                            <div id="research-categories"></div>
+                        </div>
+                    </div>
+                    <div class="card metrics-card">
+                        <div class="card-header">Metrics</div>
+                        <div class="card-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Metric</th>
+                                        <th>Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="metrics-table-body"></tbody>
+                            </table>
+                            <p class="text-muted
+                            "><sup>*</sup>This is a prediction after 3 years and has not been validated. Treat with caution.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('process-abstract').addEventListener('click', processAbstract);
+        document.getElementById('random-abstract').addEventListener('click', getRandomAbstract);
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+        document.addEventListener('DOMContentLoaded', function() {
+            checkApiKey();
+        });
+        function processAbstract() {
+            checkApiKey();
+            const abstract = document.getElementById('expanding-textarea').value;
+            if (!abstract) return;
+    
+    
+            const button = document.getElementById('process-abstract');
+            const spinner = button.querySelector('.spinner');
+            
+            button.disabled = true;
+            spinner.classList.remove('d-none');
+
+
+            fetch('/process_abstract', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({abstract: abstract})
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data);
+                scrollToBottom();
+            })
+            .finally(() => {
+                button.disabled = false;
+                spinner.classList.add('d-none');
+            });
+        }
+
+        function getRandomAbstract() {
+            fetch('/random_abstract')
+            .then(response => response.text())
+            .then(abstract => {
+                document.getElementById('expanding-textarea').value = abstract;
+            });
+        }
+
+        function displayResults(data) {
+            const colors = [
+                '#007bff', '#28a745', '#dc3545', '#ffa407', '#17a2b8', 
+                '#6610f2', '#fd7e14', '#20c997', '#e83e8c', '#6f42c1'
+                ];
+            const summaryList = document.getElementById('summary-list');
+            const researchPurpose = document.getElementById('purpose-of-research');
+            researchPurpose.innerHTML = `<b>Research purpose: </b> ${data.abstract_info.research_problem}`;
+
+            const researchCategories = document.getElementById('research-categories');
+            researchCategories.innerHTML = data.abstract_info.research_categories.map((item, index) => 
+            `<span class="badge" style="background-color: ${colors[index % colors.length]}">${item}</span>`
+            ).join(' ');
+
+            summaryList.innerHTML = data.abstract_info.Summary.map(item => `<li>${item}</li>`).join('');
+
+            const metricsTableBody = document.getElementById('metrics-table-body');
+            metricsTableBody.innerHTML = Object.entries(data.metrics).map(([metric, score]) => `
+                <tr>
+                    <td>${metric}</td>
+                    <td class="metric-circle" style="font-size: 32px;">${renderMetricCircles(score)}</td>
+                </tr>
+            `).join('')+ `
+                <tr>
+                    <td>Citation prediction<sup>*</sup></td>
+                    <td>${data.cite_forecast}</td>
+                </tr>
+            `;
+
+            document.getElementById('output-container').classList.remove('hidden');
+        }
+
+        function renderMetricCircles(score) {
+            if (typeof score === 'number' && score <= 10) {
+                const fullCircles = '●'.repeat(Math.floor(score / 2));
+                const halfCircle = score % 2 !== 0 ? '◐' : '';
+                const emptyCircles = '○'.repeat(5 - Math.ceil(score / 2));
+                return fullCircles + halfCircle + emptyCircles;
+            }
+            return score;
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const themeToggle = document.getElementById('theme-toggle');
+            const infoButton = document.getElementById('info-button');
+            if (document.body.classList.contains('dark-mode')) {
+                themeToggle.textContent = '☀️ Light Mode';
+                themeToggle.classList.replace('btn-outline-primary', 'btn-outline-light');
+                infoButton.classList.replace('btn-outline-info', 'btn-outline-light');
+            } else {
+                themeToggle.textContent = '🌙 Dark Mode';
+                themeToggle.classList.replace('btn-outline-light', 'btn-outline-primary');
+                infoButton.classList.replace('btn-outline-light', 'btn-outline-info');
+            }
+        }
+
+        
+        function scrollToBottom() {
+            window.scrollTo({
+                top: document.documentElement.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        document.getElementById('info-button').addEventListener('click', showInfoModal);
+        document.getElementById('infoModal').addEventListener('hidden.bs.modal', function () {
+        infoModal = null;
+        });
+        let infoModal;
+
+        function showInfoModal() {
+            if (!infoModal) {
+                infoModal = new bootstrap.Modal(document.getElementById('infoModal'));
+            }
+            infoModal.show();
+        }
+
+        function hideInfoModal() {
+        if (infoModal) {
+            infoModal.hide();
+        }
+        }
+
+     
+        // document.addEventListener('DOMContentLoaded', checkApiKey);
+        function checkApiKey() {
+        fetch('/check_api_key')
+            .then(response => response.json())
+            .then(data => {
+                if (!data.exists) {
+                    const apiKeyModal = new bootstrap.Modal(document.getElementById('apiKeyModal'));
+                    apiKeyModal.show();
+                }
+            });
+        }
+
+    // Call this function when the page loads
+
+    </script>
+    <div class="modal fade" id="apiKeyModal" tabindex="-1" aria-labelledby="apiKeyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="apiKeyModalLabel">API Key Required</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>The ANTHROPIC_API_KEY environment variable is not set. Please follow these steps to set it:</p>
+                    <ol>
+                        <li>Sign up for an API key at <a href="https://www.anthropic.com" target="_blank">Anthropic</a>.</li>
+                        <li>Open your terminal or command prompt.</li>
+                        <li>Run the following command, replacing YOUR_API_KEY with your actual API key:</li>
+                        <pre><code>export ANTHROPIC_API_KEY=YOUR_API_KEY</code></pre>
+                        <li>Restart your Flask application.</li>
+                    </ol>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="infoModalLabel">About FutureCite</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        FutureCite (<i>cite as in a citation</i>) is an abstract analysis tool to help 
+                        researchers identify the most relevant research. 
+                    </p>
+                    <p>
+                        It provides a summary and metrics to help assess the abstract.
+                    </p>
+                    <p>
+                        The LLM Claude (<a href = "https://www.anthropic.com/claude">Claude 3.5 Sonnet</a>) is used to process and score the abstracts.
+                    </p>
+                    <b>Use cases: </b>
+                    <ol>
+                        <li>Literature reviews: Helping researchers prioritize relevant research</li>
+                        <li>Time saving: Quickly assess the content of an abstract</li>
+                        <li>Improve writing: Receive feedback on your abstracts</li>
+                    </ol>
+                    <b>How to use:</b>
+                    <ol>
+                        <li>Enter your research abstract in the text area.</li>
+                        <li>Click "Process abstract" to analyze.</li>
+                        <li>View the summary and metrics in the results section.</li>
+                    </ol>
+                    <p><i>You can also click "Random abstract" to load a sample abstract for testing.</i></p>
+
+                    <p>Created by <a href="https://linktr.ee/fergusmc">Fergus Mcilwaine</a> and <a href="https://www.linkedin.com/in/reinaldo-juan-lee-pereira-27941611b/">Reinaldo Pereira</a></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
