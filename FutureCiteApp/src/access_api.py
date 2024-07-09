@@ -95,12 +95,12 @@ def Return_Values(text,Qual_met,Quant_met,Fut_met,details):
             
     return dict(zip(Qual_met, qual_values)), dict(zip(Quant_met, quant_values)), dict(zip(Fut_met, fut_values)), text_outputs
 
-def process_abstract(abstract_text):
+def process_abstract(key,abstract_text):
 
     article = {}
     article['abstract'] = abstract_text
     
-    key = os.environ.get("ANTHROPIC_API_KEY")
+    # key = os.environ.get("ANTHROPIC_API_KEY")
 
     Qualitative_Metrics = [
         "Novelty",

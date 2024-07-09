@@ -12,20 +12,25 @@ def index():
 @app.route('/check_api_key')
 def check_api_key():
     api_key_exists = 'ANTHROPIC_API_KEY' in os.environ
-    print("api_key_exists",api_key_exists)
     return jsonify({'exists': api_key_exists})
 
 @app.route('/process_abstract', methods=['POST'])
 def process_abstract_route():
     abstract = request.json['abstract']
-    metrics, cite_forecast, abstract_info = process_abstract(abstract)
-
+    api_key = request.headers.get('Anthropic-API-Key')
     
-    return jsonify({
-        'metrics': metrics,
-        'cite_forecast': cite_forecast['Citation forecast'],
-        'abstract_info': abstract_info
-    })
+    if not api_key:
+        return jsonify({'error': 'API key is required'}), 400
+
+    try:
+        metrics, cite_forecast, abstract_info = process_abstract(api_key,abstract)
+        return jsonify({
+            'metrics': metrics,
+            'cite_forecast': cite_forecast['Citation forecast'],
+            'abstract_info': abstract_info
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 @app.route('/random_abstract')
 def random_abstract():

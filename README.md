@@ -35,10 +35,6 @@ cd FutureCite
 ```shell
 pip install -r requirements.txt
 ```
-3. Set your ClaudeAPI key
-```shell
-export ANTHROPIC_API_KEY="your_key_here"
-```
 
 3. Run the flask backend
 ```shell
@@ -50,6 +46,8 @@ python app.py
 
 5. Follow the instructions in your browser
 
+FutureCite uses the Anthropic API to process abstracts.
+If you don't have an API key, you can get one by signing up at <a href="https://console.anthropic.com/settings/keys">Anthropic</a>.
 
 # Using FutureCite for a large numbers of abstracts
 
@@ -67,11 +65,12 @@ python run_FutureCite_on_csv.py
 2. Specify name of output csv file. currently this is named `Demo_results.csv`
 </details>
 
+We did this for ~500 abstracts from <a href = 'https://arXiv.org'>arXiv</a> and provide the tools in `example`
 
-We did this for ~500 abstracts from arXiv and provide the tools in `example`
-
-<img class="img-fluid" width="70%" src="./demo/graphs/packed_bubble_chart.png" alt="Bubble chart">
-    
+<div align="center">
+  <img width="70%" src="./demo/graphs/packed_bubble_chart.png" alt="Bubble chart">
+  <p><em>FutureCite categorisation of ~500 abstracts from arXiv</em></p>
+</div>
 
 # ℹ️ Additional information
 <details>
@@ -79,14 +78,13 @@ We did this for ~500 abstracts from arXiv and provide the tools in `example`
 
 
 ### How it works 
-We use the ClaudeAPI (Claude 3.5 Sonnet) to process an abstract.
 
 A research article's citation count (number of times it is referenced or used in other reviewed work) is a key metric used by researchers, funding organizations, and journals to determine the relevance, attention, and impact of an article. FutureCite aims to estimate this value based on the abstract content, helping researchers gauge the potential impact of their work before publication.
 
-</details>
+We use the ClaudeAPI (Claude 3.5 Sonnet) to process abstracts.
+
 
 ### Fetching articles
-<details>
 
 <summary>Fetch articles from arXiv.</summary>
 
