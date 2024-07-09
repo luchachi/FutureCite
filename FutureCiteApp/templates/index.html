@@ -216,6 +216,7 @@
                         <li>View the summary and metrics in the results section.</li>
                     </ol>
                     <p><i>You can also click "Random abstract" to load a sample abstract for testing.</i></p>
+                    <p><b>Disclaimer:</b> The metrics are not validated and should be treated with caution.</p>
                     <p>Created by <a href="https://linktr.ee/fergusmc">Fergus Mcilwaine</a> and <a href="https://www.linkedin.com/in/reinaldo-juan-lee-pereira-27941611b/">Reinaldo Pereira</a>.</p>
                     <p>Code available on <a href="https://github.com/luchachi/FutureCite/">GitHub</a>.</p>
                 </div>
@@ -237,7 +238,7 @@
                 if (event.target.id === 'apiKeyForm') {
                     event.preventDefault();
                     handleSubmitApiKey();
-                    console.log('submit')
+                    processAbstract();
                 }
                 
             });
@@ -250,7 +251,6 @@
 
         function handleProcessAbstract(event) {
             event.preventDefault();
-            console.log('handleProcessAbstract',apiKey)
             if (!apiKey) {
                 apiKeyModal.show();
             } else {

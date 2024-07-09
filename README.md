@@ -15,6 +15,8 @@ Large language models can quickly summarise and provide qualitative metrics!
 
 # 📢 Use Cases
 
+FutureCite is aimed at academic researchers. Use cases:
+
 - Literature reviews: Helping researchers prioritize relevant research
 - Time saving: Quickly assess the content of an abstract
 - Improve writing: Receive feedback on your abstracts
@@ -82,6 +84,8 @@ We did this for ~500 abstracts from <a href = 'https://arXiv.org'>arXiv</a> and 
 A research article's citation count (number of times it is referenced or used in other reviewed work) is a key metric used by researchers, funding organizations, and journals to determine the relevance, attention, and impact of an article. FutureCite aims to estimate this value based on the abstract content, helping researchers gauge the potential impact of their work before publication.
 
 We use the ClaudeAPI (Claude 3.5 Sonnet) to process abstracts.
+
+The metrics are predictions based on Claude and should be treated as such.
 
 
 ### Fetching articles
