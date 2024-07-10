@@ -23,7 +23,15 @@ FutureCite is aimed at academic researchers. Use cases:
 - Citation prediction: Predicting the potential impact of your article
 
 
-# ❔ How to use
+# 🚀 Getting Started
+
+## 🌐 Web Version
+
+You can access the web version of the app at:
+
+[https://fmcil.pythonanywhere.com/](https://fmcil.pythonanywhere.com/)
+
+## 💻 Local Installation
 
 To run locally, follow the below
 
