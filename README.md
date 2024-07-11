@@ -29,7 +29,7 @@ FutureCite is aimed at academic researchers. Use cases:
 
 You can access the web version of the app at:
 
-[https://fmcil.pythonanywhere.com/](https://fmcil.pythonanywhere.com/)
+[http://futurecite-fmcil.pythonanywhere.com/](http://futurecite-fmcil.pythonanywhere.com/)
 
 ## 💻 Local Installation
 
